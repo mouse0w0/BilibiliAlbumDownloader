@@ -1,15 +1,22 @@
 import https from 'https';
 import fs from 'fs';
+import readline from 'readline';
 
-const uid = '1';
-const downloadPath = 'download'; 
+const rl = readline.createInterface(process.stdin, process.stdout);
 
-main();
+rl.question(`请输入UID：`, (answer) => {
+    let uid = answer;
+    rl.question(`请输入输出路径(download)：`, (answer) => {
+        let output = answer.length == 0 ? "download" : answer;
+        start(uid, output);
+        rl.close();
+    });
+});
 
-async function main() {
+async function start(uid: string, output: string) {
     let images = await getAlbumImages(uid);
     console.log('Found images: ' + images.length);
-    downloadImages(downloadPath, images);
+    await downloadImages(output, images);
     console.log('Download Finish!');
 }
 
@@ -45,10 +52,17 @@ async function downloadImages(path: string, images: ImageInfo[]) {
     mkdirSync(path);
     let count = 0;
     for (let image of images) {
-        let folder = path + '/' + image.folderName;
-        mkdirSync(folder);
-        await download(folder + '/' + image.fileName, image.src);
         count++;
+        try {
+            let folder = path + '/' + image.folderName;
+            mkdirSync(folder);
+            let file = folder + '/' + image.fileName;
+            if (!fs.existsSync(file) || fs.statSync(file).size == 0) {
+                await download(file, image.src).catch((err) => download(file, image.src));
+            }
+        } catch (err) {
+            console.warn(err);
+        }
         console.log('Downloaded: ' + count + '/' + images.length);
     }
 }
