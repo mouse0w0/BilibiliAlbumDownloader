@@ -1,0 +1,2 @@
+# BilibiliAlbumDownloader
+Bilibili album downloader
