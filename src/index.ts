@@ -23,7 +23,7 @@ async function start(uid: string, output: string) {
 interface ImageInfo {
     folderName: string;
     fileName: string;
-    md5: string;
+    sha1: string;
     src: string;
 }
 
@@ -40,7 +40,7 @@ async function getAlbumImages(uid: string): Promise<ImageInfo[]> {
             list.push({
                 folderName: ensureFolderName(item.description),
                 fileName: imgFileName,
-                md5: imgFileName.substring(0, img_src.lastIndexOf('.')),
+                sha1: imgFileName.substring(0, img_src.lastIndexOf('.')),
                 src: img_src
             });
         }
